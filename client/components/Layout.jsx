@@ -1,7 +1,7 @@
 import {Link} from 'react-router-dom';
-import Logo from '../src/assets/logo.png';
+import Logo from '../src/assets/envolve.jpg';
 import './Layout.css';
-
+{/* navegation bar component and Title */}
 const Layout = () => {
     return (
         <nav>
