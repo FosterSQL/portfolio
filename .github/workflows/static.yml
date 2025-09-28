@@ -43,7 +43,7 @@ jobs:
           cd client        # Navega a la carpeta 'client'
           npm install      # Instala dependencias
           npm run build    # Compila el proyecto (esto crea la carpeta 'client/dist')
-          
+          cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
