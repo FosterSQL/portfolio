@@ -1,23 +1,43 @@
-import { TypeAnimation } from 'react-type-animation';
-
+import React from "react";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Typography from "@mui/material/Typography";
+import { useTheme } from "@mui/material/styles";
+import unicornbikeImg from "./assets/envolve.jpg";
 const Home = () => {
-    return(
-        <div>
-            <h2>Welcome</h2>
-            <TypeAnimation
-                sequence={[
-                    'I am Diego Gonzalez', 2000,
-                    'I am a Full Stack Developer', 2000,
-                    'I am a Software Engineer', 2000,
-                    'I am a Tech Enthusiast', 2000,
-                ]}
-                wrapper="h2"
-                cursor={true}
-                speed={50}
-                repeat={Infinity}
-                style={{ fontSize: '5em', textAlign: 'center', marginTop: '20px' }}
-            />
-        </div>
-    );
+const theme = useTheme();
+return (
+<Card
+ sx={{
+ maxWidth: 600,
+ margin: "auto",
+ mt: 5,
+ }}
+ >
+ <Typography
+ variant="h2"
+ sx={{
+ px: 10,
+ pt: 3,
+ pb: 2,
+    color: theme.custom?.openTitle || theme.palette.primary.main,
+}}
+>
+HomePage
+    </Typography>
+    
+    <CardMedia
+    sx={{ minHeight: 400 }}
+    image={unicornbikeImg}
+    title="Unicorn Bike"
+    />
+    <CardContent>
+    <Typography variant="body2" component="p">
+    Welcome to my home page.
+    </Typography>
+    </CardContent>
+</Card>
+);
 };
 export default Home;
