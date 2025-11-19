@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import config from './config/config.js';
 import assetsRouter from './server/assets-router.js';
@@ -11,11 +12,14 @@ import qualificationRoutes from './server/routes/qualification.routes.js';
 import authRoutes from './server/routes/auth.routes.js';
 
 const app = express();
-app.use('/', authRoutes);
 
-// Minimal middleware
+// Minimal middleware - ensure parsers/cors are registered before routes
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
+
+// Mount auth routes after middleware so req.body and req.cookies are available for signin and auth
+app.use('/', authRoutes);
 
 // MongoDB connection (simple and explicit)
 mongoose.Promise = global.Promise;

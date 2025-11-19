@@ -32,11 +32,25 @@ const signout = (req, res) => {
  message: "signed out"
  })
  }
+
  const requireSignin = expressjwt({
  secret: config.jwtSecret,
  algorithms: ["HS256"],
- userProperty: 'auth'
+ userProperty: 'auth',
+ // accept token from Authorization header (Bearer ...) or from cookie 't'
+ getToken: function fromHeaderOrCookie (req) {
+	 if (!req) return null;
+	 if (req.headers && req.headers.authorization) {
+		 const parts = req.headers.authorization.split(' ');
+		 if (parts.length === 2 && parts[0] === 'Bearer') return parts[1];
+	 }
+	 if (req.cookies && req.cookies.t) {
+		 return req.cookies.t;
+	 }
+	 return null;
+ }
  })
+
  const hasAuthorization = (req, res, next) => {
  const authorized = req.profile && req.auth
  && req.profile._id == req.auth._id

@@ -8,7 +8,5 @@ router.route('/api/users/:userId')
 .put(authCtrl.requireSignin, authCtrl.hasAuthorization,userCtrl.update)
 .delete(authCtrl.requireSignin, authCtrl.hasAuthorization,userCtrl.remove)
 router.param('userId', userCtrl.userByID)
-router.route('/api/users/:userId').get(userCtrl.read)
-router.route('/api/users/:userId').put(userCtrl.update)
-router.route('/api/users/:userId').delete(userCtrl.remove)
+// routes above already protect /api/users/:userId with auth; avoid duplicate unprotected routes
 export default router

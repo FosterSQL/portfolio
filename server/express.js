@@ -5,11 +5,13 @@ import compress from 'compression'
 import cors from 'cors'
 import helmet from 'helmet'
 import Template from './../template.js'
+import authRoutes from './routes/auth.routes.js'
 import userRoutes from './routes/user.routes.js'
 import contactRoutes from './routes/contact.routes.js'
 import projectRoutes from './routes/project.routes.js'
 import educationRoutes from './routes/education.routes.js'
 
+app.use('/', authRoutes);
 
 const app = express()
 //const CURRENT_WORKING_DIR = process.cwd()
