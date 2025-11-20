@@ -16,12 +16,13 @@ error: errorHandler.getErrorMessage(err)
 }
 const list = async (req, res) => { 
 try {
-let users = await User.find().select('name email updated created') 
-res.json(users)
+    // expose isAdmin for admin UIs
+    let users = await User.find().select('name email updated created isAdmin') 
+    res.json(users)
 } catch (err) {
-return res.status(400).json({
-error: errorHandler.getErrorMessage(err) 
-})
+    return res.status(400).json({
+        error: errorHandler.getErrorMessage(err) 
+    })
 } 
 }
 const userByID = async (req, res, next, id) => { 

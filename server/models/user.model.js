@@ -21,6 +21,10 @@ import crypto from 'crypto'
  type: Date,
  default: Date.now
  },
+		isAdmin: {
+			type: Boolean,
+			default: false
+		},
  hashed_password: {
  type: String,
  required: 'Password is required'
@@ -45,7 +49,7 @@ import crypto from 'crypto'
  this.invalidate('password', 'Password is required');
  }
  }, null);
- 
+
  UserSchema.methods = {
  authenticate: function(plainText) {
  return this.encryptPassword(plainText) === this.hashed_password
