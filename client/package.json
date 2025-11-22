@@ -5,7 +5,7 @@
   "homepage": "https://fostersql.github.io/portfolio/",
   "type": "module",
   "scripts": {
-    "dev": "concurrently 'vite' \"nodemon server.cjs\"",
+    "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

@@ -1,95 +1,220 @@
-import { TypeAnimation } from 'react-type-animation';
-import ImageCarousel from '../components/ImageCarousel';
+import React, { useEffect, useState } from 'react'
+import { TypeAnimation } from 'react-type-animation'
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    TextField,
+    Typography,
+    Grid,
+    IconButton,
+} from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import SaveIcon from '@mui/icons-material/Save'
+import CancelIcon from '@mui/icons-material/Cancel'
+import auth from '../lib/auth-helper.js'
 
-import kernel1 from './assets/kernel.jpeg';
-import kernel2 from './assets/kernel2.jpeg';
-import kernel3 from './assets/kernel3.jpeg';
+const Projects = () => {
+    const [items, setItems] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
 
-import oracle1 from './assets/Oraclecloud.jpg';
-import oracle2 from './assets/Oraclecloud2.png';
-import oracle3 from './assets/Oraclecloud3.png';
+    const [form, setForm] = useState({ title: '', completion: '', description: '', image: '' })
+    const [editingId, setEditingId] = useState(null)
+    const [editingValues, setEditingValues] = useState({})
 
-import envolve1 from './assets/Reineva.png';
-import envolve2 from './assets/Envolvepage.png';
+    const jwt = auth.isAuthenticated()
+    const isAdmin = jwt && jwt.user && jwt.user.isAdmin
 
-const imagesKernel = [
-    { src: kernel1, alt: 'Project kernel Image 1' },
-    { src: kernel2, alt: 'Project kernel Image 2' },
-    { src: kernel3, alt: 'Project kernel Image 3' },
-];
+    useEffect(() => {
+        fetchList()
+    }, [])
 
-const imagesOracle = [
-    { src: oracle1, alt: 'Project Oracle Image 1' },
-    { src: oracle2, alt: 'Project Oracle Image 2' },
-    { src: oracle3, alt: 'Project Oracle Image 3' },
-];
+    const fetchList = async () => {
+        setLoading(true)
+        try {
+            const res = await fetch('/api/projects')
+            const data = await res.json()
+            setItems(Array.isArray(data) ? data : [])
+        } catch (err) {
+            setError('Could not load projects')
+        } finally {
+            setLoading(false)
+        }
+    }
 
-const imagesEvolve = [
-    { src: envolve1, alt: 'Project Evolve Image 1' },
-    { src: envolve2, alt: 'Project Evolve Image 2' },
-];
+    const handleChange = (name) => (e) => setForm({ ...form, [name]: e.target.value })
 
-const Project = () => {
-    
+    const handleCreate = async () => {
+        try {
+            const token = jwt && jwt.token ? jwt.token : null
+            const res = await fetch('/api/projects', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify(form),
+            })
+            const data = await res.json()
+            if (data.error) return setError(data.error)
+            setForm({ title: '', completion: '', description: '', image: '' })
+            fetchList()
+        } catch (err) {
+            setError('Create failed')
+        }
+    }
+
+    const startEdit = (item) => {
+        setEditingId(item._id)
+        setEditingValues({
+            title: item.title || '',
+            completion: item.completion || '',
+            description: item.description || '',
+            image: item.image || '',
+        })
+    }
+
+    const cancelEdit = () => {
+        setEditingId(null)
+        setEditingValues({})
+    }
+
+    const handleEditChange = (name) => (e) => setEditingValues({ ...editingValues, [name]: e.target.value })
+
+    const handleUpdate = async (id) => {
+        try {
+            const token = jwt && jwt.token ? jwt.token : null
+            const res = await fetch(`/api/projects/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify(editingValues),
+            })
+            const data = await res.json()
+            if (data.error) return setError(data.error)
+            cancelEdit()
+            fetchList()
+        } catch (err) {
+            setError('Update failed')
+        }
+    }
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this project?')) return
+        try {
+            const token = jwt && jwt.token ? jwt.token : null
+            const res = await fetch(`/api/projects/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+            })
+            const data = await res.json()
+            if (data.error) return setError(data.error)
+            fetchList()
+        } catch (err) {
+            setError('Delete failed')
+        }
+    }
+
     return (
-        <div>
-        <TypeAnimation
-                sequence={[
-                    'My projects', 2000,
-                    'My work', 2000,
-                    'My experience', 2000,
-                    'My projects...', 2000,
-                    'My work..', 2000,
-                    'My experience.', 2000,
-                ]}
+        <Box sx={{ p: 3 }}>
+            <TypeAnimation
+                sequence={['My Projects', 2000, 'My Projects.', 2000, 'My Projects... ', 2000]}
                 wrapper="h2"
                 cursor={true}
                 speed={40}
                 repeat={Infinity}
-                style={{ fontSize: '3em', textAlign: 'center', marginTop: '20px' }}
+                style={{ fontSize: '2.5em', textAlign: 'center', marginTop: '10px' }}
             />
-           <div>
-            {/* Carrusel 1: Kernel */}
-            <h2>Proyect Kernel</h2>
-             <h2>I have collaborated on various team-based
-                projects, including KERNEL, my graduation
-                project, during which I spend one year
-                developing a community-based English
-                learning platform.
-                In this project, I worked with technologies
-                like React, Node.js and Firebase and
-                software languages like JavaScript, HTML
-                and CSS.
-            </h2>
-            <ImageCarousel images={imagesKernel} />
-           
-            {/* Carrusel 2: Oracle Cloud */}
-            <h2>Proyect Oracle Cloud</h2>
-            <h2>In this initiative by the Oracle Education
-            Foundation, I was invited to work with a
-            team to analyze data related with the
-            SDG’s of the United Nations and developed
-            a project prototype, winning first place by
-            the end of it.
-            </h2>
-            <ImageCarousel images={imagesOracle} />
 
-            {/* Carrusel 3: Evolve */}
-            <h2>Proyect Evolve</h2>
-            <h2>Currently, I am working on a project called
-            Evolve, which is a technology startup that
-            aims to provide innovative solutions implementing
-            A.I. in several bussines areas. I work with a team 
-            to create solutions like Reineva and Envolve main page.
-            </h2>
-            <ImageCarousel images={imagesEvolve} />
-            
-        </div>
+            {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                    {error}
+                </Typography>
+            )}
 
+            {isAdmin && (
+                <Card sx={{ maxWidth: 900, mt: 3, mx: 'auto', p: 2 }}>
+                    <CardContent>
+                        <Typography variant="h6">Admin: Add Project</Typography>
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                            <Grid item xs={12} sm={6} md={4}>
+                                <TextField label="Title" value={form.title} onChange={handleChange('title')} fullWidth />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={4}>
+                                <TextField label="Completion" type="date" InputLabelProps={{ shrink: true }} value={form.completion} onChange={handleChange('completion')} fullWidth />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField label="Image URL" value={form.image} onChange={handleChange('image')} fullWidth />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField label="Description" value={form.description} onChange={handleChange('description')} fullWidth multiline rows={3} />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button variant="contained" onClick={handleCreate}>Create</Button>
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                </Card>
+            )}
 
-    </div>
-
-
-    );
+            <Box sx={{ maxWidth: 900, mx: 'auto', mt: 3 }}>
+                {loading ? (
+                    <Typography>Loading...</Typography>
+                ) : (
+                    items.map((it) => (
+                        <Card key={it._id} sx={{ mb: 2 }}>
+                            <CardContent>
+                                {editingId === it._id ? (
+                                    <Grid container spacing={2} alignItems="center">
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField label="Title" value={editingValues.title} onChange={handleEditChange('title')} fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField label="Completion" type="date" InputLabelProps={{ shrink: true }} value={editingValues.completion} onChange={handleEditChange('completion')} fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField label="Image URL" value={editingValues.image} onChange={handleEditChange('image')} fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField label="Description" value={editingValues.description} onChange={handleEditChange('description')} fullWidth multiline rows={3} />
+                                        </Grid>
+                                        <Grid item>
+                                            <IconButton color="primary" onClick={() => handleUpdate(it._id)}><SaveIcon /></IconButton>
+                                            <IconButton color="inherit" onClick={cancelEdit}><CancelIcon /></IconButton>
+                                        </Grid>
+                                    </Grid>
+                                ) : (
+                                    <Grid container spacing={2} alignItems="center">
+                                        <Grid item xs>
+                                            <Typography variant="h6">{it.title}</Typography>
+                                            <Typography variant="body2" color="text.secondary">{it.completion ? new Date(it.completion).toLocaleDateString() : ''}</Typography>
+                                            <Typography sx={{ mt: 1 }}>{it.description}</Typography>
+                                            {it.image && (
+                                                <Box component="img" src={it.image} alt={it.title} sx={{ width: '100%', maxWidth: 400, mt: 2 }} />
+                                            )}
+                                        </Grid>
+                                        {isAdmin && (
+                                            <Grid item>
+                                                <IconButton onClick={() => startEdit(it)}><EditIcon /></IconButton>
+                                                <IconButton onClick={() => handleDelete(it._id)}><DeleteIcon /></IconButton>
+                                            </Grid>
+                                        )}
+                                    </Grid>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
+            </Box>
+        </Box>
+    )
 }
-export default Project;
+
+export default Projects
