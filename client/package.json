@@ -14,7 +14,9 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:component": "cypress run --component",
-    "test:component:open": "cypress open --component"
+    "test:component:open": "cypress open --component",
+    "test:e2e": "cypress run --e2e",
+    "test:e2e:open": "cypress open --e2e"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

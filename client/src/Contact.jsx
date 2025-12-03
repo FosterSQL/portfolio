@@ -46,7 +46,7 @@ const Contact = () => {
     const fetchList = async () => {
         setLoading(true)
         try {
-            const res = await fetch('/api/contacts')
+            const res = await fetch(`${config.apiUrl}/api/contacts`)
             const data = await res.json()
             setItems(Array.isArray(data) ? data : [])
         } catch (err) {
@@ -63,7 +63,7 @@ const Contact = () => {
             setError('')
             setSuccess('')
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch('/api/contacts', {
+            const res = await fetch(`${config.apiUrl}/api/contacts`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const Contact = () => {
     const handleUpdate = async (id) => {
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch(`/api/contacts/${id}`, {
+            const res = await fetch(`${config.apiUrl}/api/contacts/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ const Contact = () => {
         if (!window.confirm('Delete this contact?')) return
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch(`/api/contacts/${id}`, {
+            const res = await fetch(`${config.apiUrl}/api/contacts/${id}`, {
                 method: 'DELETE',
                 headers: {
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),

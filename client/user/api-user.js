@@ -1,4 +1,6 @@
-const API_BASE = "/api/users";
+import config from '../src/config'
+
+const API_BASE = `${config.apiUrl}/api/users`;
 
 const handleResponse = async (response) => {
 try {
