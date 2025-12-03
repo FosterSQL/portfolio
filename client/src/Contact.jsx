@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TypeAnimation } from 'react-type-animation'
+import config from './config'
 import {
     Box,
     Button,
