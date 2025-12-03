@@ -58,7 +58,7 @@ const Education = () => {
     const fetchList = async () => {
         setLoading(true)
         try {
-            const res = await fetch('/api/qualifications')
+            const res = await fetch(`${config.apiUrl}/api/qualifications`)
             const data = await res.json()
             setItems(Array.isArray(data) ? data : [])
         } catch (err) {
@@ -73,7 +73,7 @@ const Education = () => {
     const handleCreate = async () => {
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch('/api/qualifications', {
+            const res = await fetch(`${config.apiUrl}/api/qualifications`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ const Education = () => {
     const handleUpdate = async (id) => {
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch(`/api/qualifications/${id}`, {
+            const res = await fetch(`${config.apiUrl}/api/qualifications/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ const Education = () => {
         if (!window.confirm('Delete this item?')) return
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch(`/api/qualifications/${id}`, {
+            const res = await fetch(`${config.apiUrl}/api/qualifications/${id}`, {
                 method: 'DELETE',
                 headers: {
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),

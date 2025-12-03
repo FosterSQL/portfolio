@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 const { PORT = 3000} = process.env;
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: "/portfolio/",
+  base: mode === 'production' ? '/portfolio/' : '/',
   server:{
  proxy:{
  '/api':{
@@ -24,4 +24,4 @@ export default defineConfig({
       input: "./index.html",
     },
   },
-})
+}))

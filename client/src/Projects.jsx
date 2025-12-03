@@ -48,7 +48,7 @@ const Projects = () => {
     const fetchList = async () => {
         setLoading(true)
         try {
-            const res = await fetch('/api/projects')
+            const res = await fetch(`${config.apiUrl}/api/projects`)
             const data = await res.json()
             setItems(Array.isArray(data) ? data : [])
         } catch (err) {
@@ -63,7 +63,7 @@ const Projects = () => {
     const handleCreate = async () => {
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch('/api/projects', {
+            const res = await fetch(`${config.apiUrl}/api/projects`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ const Projects = () => {
     const handleUpdate = async (id) => {
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch(`/api/projects/${id}`, {
+            const res = await fetch(`${config.apiUrl}/api/projects/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ const Projects = () => {
         if (!window.confirm('Delete this project?')) return
         try {
             const token = jwt && jwt.token ? jwt.token : null
-            const res = await fetch(`/api/projects/${id}`, {
+            const res = await fetch(`${config.apiUrl}/api/projects/${id}`, {
                 method: 'DELETE',
                 headers: {
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),
