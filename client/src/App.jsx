@@ -4,8 +4,11 @@
  import MainRouter from '../MainRouter';
  import theme from '../theme';
  const App = () => {
+ // Use basename only in production for GitHub Pages
+ const basename = import.meta.env.MODE === 'production' ? '/portfolio' : '/';
+ 
  return (
- <Router>
+ <Router basename={basename}>
  <ThemeProvider theme={theme}>
  <CssBaseline /> {/* Optional but recommended for consistent baseline styles */}
  <MainRouter />
