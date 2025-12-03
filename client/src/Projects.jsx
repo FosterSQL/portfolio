@@ -9,17 +9,30 @@ import {
     Typography,
     Grid,
     IconButton,
+    Container,
+    CardMedia,
+    Chip,
+    Fade,
+    useTheme,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
+import AddIcon from '@mui/icons-material/Add'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import auth from '../lib/auth-helper.js'
 
 const Projects = () => {
+    const theme = useTheme()
     const [items, setItems] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [openDialog, setOpenDialog] = useState(false)
 
     const [form, setForm] = useState({ title: '', completion: '', description: '', image: '' })
     const [editingId, setEditingId] = useState(null)
@@ -61,6 +74,7 @@ const Projects = () => {
             const data = await res.json()
             if (data.error) return setError(data.error)
             setForm({ title: '', completion: '', description: '', image: '' })
+            setOpenDialog(false)
             fetchList()
         } catch (err) {
             setError('Create failed')
@@ -123,96 +137,259 @@ const Projects = () => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
-            <TypeAnimation
-                sequence={['My Projects', 2000, 'My Projects.', 2000, 'My Projects... ', 2000]}
-                wrapper="h2"
-                cursor={true}
-                speed={40}
-                repeat={Infinity}
-                style={{ fontSize: '2.5em', textAlign: 'center', marginTop: '10px' }}
-            />
+        <Box sx={{ bgcolor: theme.palette.background.default, minHeight: '100vh', py: 6 }}>
+            <Container maxWidth="lg">
+                {/* Header Section */}
+                <Fade in={true} timeout={800}>
+                    <Box sx={{ textAlign: 'center', mb: 6 }}>
+                        <TypeAnimation
+                            sequence={['My Projects', 2000, 'My Projects.', 2000, 'My Projects...', 2000]}
+                            wrapper="h1"
+                            cursor={true}
+                            speed={40}
+                            repeat={Infinity}
+                            style={{
+                                fontSize: '3rem',
+                                fontWeight: 700,
+                                color: theme.palette.primary.main,
+                            }}
+                        />
+                        <Typography
+                            variant="body1"
+                            sx={{ mt: 2, color: theme.palette.text.secondary, maxWidth: '600px', mx: 'auto' }}
+                        >
+                            Explore my portfolio of projects showcasing my technical skills and problem-solving abilities
+                        </Typography>
+                    </Box>
+                </Fade>
 
-            {error && (
-                <Typography color="error" sx={{ mt: 2 }}>
-                    {error}
-                </Typography>
-            )}
+                {error && (
+                    <Typography color="error" align="center" sx={{ mb: 3 }}>
+                        {error}
+                    </Typography>
+                )}
 
-            {isAdmin && (
-                <Card sx={{ maxWidth: 900, mt: 3, mx: 'auto', p: 2 }}>
-                    <CardContent>
-                        <Typography variant="h6">Admin: Add Project</Typography>
+                {/* Admin Add Button */}
+                {isAdmin && (
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+                        <Button
+                            variant="contained"
+                            startIcon={<AddIcon />}
+                            onClick={() => setOpenDialog(true)}
+                            sx={{ px: 3 }}
+                        >
+                            Add New Project
+                        </Button>
+                    </Box>
+                )}
+
+                {/* Projects Grid */}
+                <Grid container spacing={4}>
+                    {loading ? (
+                        <Grid item xs={12}>
+                            <Typography align="center">Loading projects...</Typography>
+                        </Grid>
+                    ) : items.length === 0 ? (
+                        <Grid item xs={12}>
+                            <Typography align="center" color="text.secondary">
+                                No projects available yet
+                            </Typography>
+                        </Grid>
+                    ) : (
+                        items.map((project, index) => (
+                            <Grid item xs={12} md={6} key={project._id}>
+                                <Fade in={true} timeout={1000} style={{ transitionDelay: `${index * 100}ms` }}>
+                                    <Card
+                                        sx={{
+                                            height: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-8px)',
+                                                boxShadow: '0px 12px 28px rgba(0,0,0,0.15)',
+                                            },
+                                        }}
+                                    >
+                                        {editingId === project._id ? (
+                                            <CardContent sx={{ flexGrow: 1 }}>
+                                                <Grid container spacing={2}>
+                                                    <Grid item xs={12}>
+                                                        <TextField
+                                                            label="Title"
+                                                            value={editingValues.title}
+                                                            onChange={handleEditChange('title')}
+                                                            fullWidth
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <TextField
+                                                            label="Completion Date"
+                                                            type="date"
+                                                            InputLabelProps={{ shrink: true }}
+                                                            value={editingValues.completion}
+                                                            onChange={handleEditChange('completion')}
+                                                            fullWidth
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <TextField
+                                                            label="Image URL"
+                                                            value={editingValues.image}
+                                                            onChange={handleEditChange('image')}
+                                                            fullWidth
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <TextField
+                                                            label="Description"
+                                                            value={editingValues.description}
+                                                            onChange={handleEditChange('description')}
+                                                            fullWidth
+                                                            multiline
+                                                            rows={4}
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                                            <Button
+                                                                variant="contained"
+                                                                startIcon={<SaveIcon />}
+                                                                onClick={() => handleUpdate(project._id)}
+                                                            >
+                                                                Save
+                                                            </Button>
+                                                            <Button
+                                                                variant="outlined"
+                                                                startIcon={<CancelIcon />}
+                                                                onClick={cancelEdit}
+                                                            >
+                                                                Cancel
+                                                            </Button>
+                                                        </Box>
+                                                    </Grid>
+                                                </Grid>
+                                            </CardContent>
+                                        ) : (
+                                            <>
+                                                {project.image && (
+                                                    <CardMedia
+                                                        component="img"
+                                                        height="240"
+                                                        image={project.image}
+                                                        alt={project.title}
+                                                        sx={{
+                                                            objectFit: 'cover',
+                                                        }}
+                                                    />
+                                                )}
+                                                <CardContent sx={{ flexGrow: 1 }}>
+                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+                                                        <Typography variant="h5" component="h3" sx={{ fontWeight: 600, flexGrow: 1 }}>
+                                                            {project.title}
+                                                        </Typography>
+                                                        {isAdmin && (
+                                                            <Box>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() => startEdit(project)}
+                                                                    sx={{ color: theme.palette.primary.main }}
+                                                                >
+                                                                    <EditIcon />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() => handleDelete(project._id)}
+                                                                    sx={{ color: theme.palette.error.main }}
+                                                                >
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+
+                                                    {project.completion && (
+                                                        <Chip
+                                                            icon={<CalendarTodayIcon />}
+                                                            label={new Date(project.completion).toLocaleDateString()}
+                                                            size="small"
+                                                            sx={{ mb: 2 }}
+                                                            color="primary"
+                                                            variant="outlined"
+                                                        />
+                                                    )}
+
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        sx={{ lineHeight: 1.7 }}
+                                                    >
+                                                        {project.description}
+                                                    </Typography>
+                                                </CardContent>
+                                            </>
+                                        )}
+                                    </Card>
+                                </Fade>
+                            </Grid>
+                        ))
+                    )}
+                </Grid>
+
+                {/* Add Project Dialog */}
+                <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+                    <DialogTitle>Add New Project</DialogTitle>
+                    <DialogContent>
                         <Grid container spacing={2} sx={{ mt: 1 }}>
-                            <Grid item xs={12} sm={6} md={4}>
-                                <TextField label="Title" value={form.title} onChange={handleChange('title')} fullWidth />
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={4}>
-                                <TextField label="Completion" type="date" InputLabelProps={{ shrink: true }} value={form.completion} onChange={handleChange('completion')} fullWidth />
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Project Title"
+                                    value={form.title}
+                                    onChange={handleChange('title')}
+                                    fullWidth
+                                    required
+                                />
                             </Grid>
                             <Grid item xs={12}>
-                                <TextField label="Image URL" value={form.image} onChange={handleChange('image')} fullWidth />
+                                <TextField
+                                    label="Completion Date"
+                                    type="date"
+                                    InputLabelProps={{ shrink: true }}
+                                    value={form.completion}
+                                    onChange={handleChange('completion')}
+                                    fullWidth
+                                />
                             </Grid>
                             <Grid item xs={12}>
-                                <TextField label="Description" value={form.description} onChange={handleChange('description')} fullWidth multiline rows={3} />
+                                <TextField
+                                    label="Image URL"
+                                    value={form.image}
+                                    onChange={handleChange('image')}
+                                    fullWidth
+                                    placeholder="https://example.com/image.jpg"
+                                />
                             </Grid>
                             <Grid item xs={12}>
-                                <Button variant="contained" onClick={handleCreate}>Create</Button>
+                                <TextField
+                                    label="Description"
+                                    value={form.description}
+                                    onChange={handleChange('description')}
+                                    fullWidth
+                                    multiline
+                                    rows={4}
+                                    required
+                                />
                             </Grid>
                         </Grid>
-                    </CardContent>
-                </Card>
-            )}
-
-            <Box sx={{ maxWidth: 900, mx: 'auto', mt: 3 }}>
-                {loading ? (
-                    <Typography>Loading...</Typography>
-                ) : (
-                    items.map((it) => (
-                        <Card key={it._id} sx={{ mb: 2 }}>
-                            <CardContent>
-                                {editingId === it._id ? (
-                                    <Grid container spacing={2} alignItems="center">
-                                        <Grid item xs={12} sm={6} md={4}>
-                                            <TextField label="Title" value={editingValues.title} onChange={handleEditChange('title')} fullWidth />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6} md={4}>
-                                            <TextField label="Completion" type="date" InputLabelProps={{ shrink: true }} value={editingValues.completion} onChange={handleEditChange('completion')} fullWidth />
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <TextField label="Image URL" value={editingValues.image} onChange={handleEditChange('image')} fullWidth />
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <TextField label="Description" value={editingValues.description} onChange={handleEditChange('description')} fullWidth multiline rows={3} />
-                                        </Grid>
-                                        <Grid item>
-                                            <IconButton color="primary" onClick={() => handleUpdate(it._id)}><SaveIcon /></IconButton>
-                                            <IconButton color="inherit" onClick={cancelEdit}><CancelIcon /></IconButton>
-                                        </Grid>
-                                    </Grid>
-                                ) : (
-                                    <Grid container spacing={2} alignItems="center">
-                                        <Grid item xs>
-                                            <Typography variant="h6">{it.title}</Typography>
-                                            <Typography variant="body2" color="text.secondary">{it.completion ? new Date(it.completion).toLocaleDateString() : ''}</Typography>
-                                            <Typography sx={{ mt: 1 }}>{it.description}</Typography>
-                                            {it.image && (
-                                                <Box component="img" src={it.image} alt={it.title} sx={{ width: '100%', maxWidth: 400, mt: 2 }} />
-                                            )}
-                                        </Grid>
-                                        {isAdmin && (
-                                            <Grid item>
-                                                <IconButton onClick={() => startEdit(it)}><EditIcon /></IconButton>
-                                                <IconButton onClick={() => handleDelete(it._id)}><DeleteIcon /></IconButton>
-                                            </Grid>
-                                        )}
-                                    </Grid>
-                                )}
-                            </CardContent>
-                        </Card>
-                    ))
-                )}
-            </Box>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 2 }}>
+                        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+                        <Button variant="contained" onClick={handleCreate}>
+                            Create Project
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Container>
         </Box>
     )
 }
