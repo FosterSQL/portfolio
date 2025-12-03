@@ -11,6 +11,13 @@ const create = async (req, res) => {
         });
     } catch (err) {
         console.error('Project create error:', err);
+        // Handle Mongo duplicate-key on unexpected `email` index more explicitly
+        if (err && err.code === 11000 && err.keyPattern && err.keyPattern.email) {
+            return res.status(409).json({
+                error: 'Duplicate key error on field "email". There is an unexpected unique index on the projects collection (email_1).',
+                suggestion: 'Drop the index `email_1` on the projects collection (see server/drop-project-email-index.js), then retry.'
+            });
+        }
         return res.status(400).json({
             error: errorHandler.getErrorMessage(err),
             // include raw error message for easier debugging in dev
@@ -19,14 +26,15 @@ const create = async (req, res) => {
     }
 }
 const list = async (req, res) => { 
-try {
-let projects = await Project.find().select('title firstname lastname email completion description') 
-res.json(projects)
-} catch (err) {
-return res.status(400).json({
-error: errorHandler.getErrorMessage(err) 
-})
-} 
+    try {
+        // Only select fields that exist on the Project schema
+        let projects = await Project.find().select('title completion description image')
+        return res.json(projects)
+    } catch (err) {
+        return res.status(400).json({
+            error: errorHandler.getErrorMessage(err)
+        })
+    } 
 }
 const projectByID = async (req, res, next, id) => { 
 try {

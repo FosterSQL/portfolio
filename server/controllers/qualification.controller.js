@@ -15,14 +15,15 @@ error: errorHandler.getErrorMessage(err)
 } 
 }
 const list = async (req, res) => { 
-try {
-let qualifications = await Qualification.find().select('title firstname lastname email completion description') 
-res.json(qualifications)
-} catch (err) {
-return res.status(400).json({
-error: errorHandler.getErrorMessage(err) 
-})
-} 
+    try {
+        // Only select fields that exist on the Qualification schema
+        let qualifications = await Qualification.find().select('title firstname lastname completion description')
+        return res.json(qualifications)
+    } catch (err) {
+        return res.status(400).json({
+            error: errorHandler.getErrorMessage(err)
+        })
+    } 
 }
 const qualificationByID = async (req, res, next, id) => { 
 try {

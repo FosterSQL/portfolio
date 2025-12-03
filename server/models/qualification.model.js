@@ -19,9 +19,8 @@ const QualificationSchema = new mongoose.Schema({
     email : ({
         type: String,
         trim: true,
-        unique: 'Email already exists',
         match: [/.+\@.+\..+/, 'Please fill a valid email address'],
-        required: 'Email is required'
+        // Email is optional for qualifications/education entries; do not enforce uniqueness here
     }),
     completion: ({
         type: Date,      
